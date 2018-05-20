@@ -11,23 +11,15 @@ public class Params {
 	public static final double ALBEDO_OF_BLACK = 0.25;
 	public static final double ALBEDO_OF_SURFACE =0.4;
 	
-	public static double SOLAR_LUMINOSITY = 1;
+	public static double SOLAR_LUMINOSITY = 0.6;
 	
-	public double getSOLAR_LUMINOSITY() {
-		return SOLAR_LUMINOSITY;
-	}
-
-	public double setSOLAR_LUMINOSITY(String scenario) {
-		if (scenario.equals("ramp_up_ramp_down")){
-			SOLAR_LUMINOSITY = 0.8;
-		}else if(scenario.equals("low_solar_luminosity")){
-			SOLAR_LUMINOSITY = 0.6;
-		}else if(scenario.equals("our_solar_luminosity")){
-			SOLAR_LUMINOSITY = 1.0;
-		}else if(scenario.equals("high_solar_luminosity")){
-			SOLAR_LUMINOSITY = 1.4;
+	public static void setSOLAR_LUMINOSITY(int tick) {
+		if(tick>200 && tick <= 400) {
+			SOLAR_LUMINOSITY = (double)Math.round((SOLAR_LUMINOSITY+0.005)*10000)/10000;
 		}
-		return SOLAR_LUMINOSITY;
+		if(tick>600 && tick <= 850) {
+			SOLAR_LUMINOSITY = (double)Math.round((SOLAR_LUMINOSITY-0.0025)*10000)/10000;
+		}
 	}
 
 }

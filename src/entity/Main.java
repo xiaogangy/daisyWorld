@@ -43,8 +43,8 @@ public class Main {
 		}
 
 		// 随机播撒种子
-		seed_randomly(daisyWorld, DaisyColor.WHITE);
 		seed_randomly(daisyWorld, DaisyColor.BLACK);
+		seed_randomly(daisyWorld, DaisyColor.WHITE);
 
 		// 计算每个patch的温度
 		for (int i = 0; i < Params.PATCH_SIZE; i++) {
@@ -62,7 +62,8 @@ public class Main {
 		row1.createCell(3).setCellValue(daisyAmount(daisyWorld, DaisyColor.WHITE));
 
 		// 开始进行更新，并绘制折线图
-		for (int tick = 0; tick < 1000; tick++) {
+		for (int tick = 0; tick < 300; tick++) {
+			//Params.setSOLAR_LUMINOSITY(tick);
 			// 计算温度
 			for (int i = 0; i < Params.PATCH_SIZE; i++) {
 				for (int j = 0; j < Params.PATCH_SIZE; j++) {
@@ -75,16 +76,16 @@ public class Main {
 			checkSurvivability(daisyWorld);
 			// 计算平均温度
 			global_temperature = average_Temperature(daisyWorld);
-			whiteAmount = daisyAmount(daisyWorld, DaisyColor.WHITE);
 			blackAmount = daisyAmount(daisyWorld, DaisyColor.BLACK);
+			whiteAmount = daisyAmount(daisyWorld, DaisyColor.WHITE);
 
 			// System.out.println(tick);
 			// 写入Excel表中
 			HSSFRow row2 = sheet.createRow(tick + 2);
 			row2.createCell(0).setCellValue(tick + 1);
 			row2.createCell(1).setCellValue(global_temperature);
-			row2.createCell(2).setCellValue(whiteAmount);
-			row2.createCell(3).setCellValue(blackAmount);
+			row2.createCell(2).setCellValue(blackAmount);
+			row2.createCell(3).setCellValue(whiteAmount);
 		}
 		System.out.println("更新结束");
 		// 生成文件
