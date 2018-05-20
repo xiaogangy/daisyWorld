@@ -1,15 +1,14 @@
 package entity;
 
-public class daisy {
+import settings.*;
+
+public class Daisy {
 	
-	private static String black= "BLACK";
-	private static String white= "WHITE";
-	
-	private String color;
+	private DaisyColor color;
 	private int age;
 	private double albedo;
 	
-	public daisy(String color, int age, double albedo) {
+	public Daisy(DaisyColor color, int age, double albedo) {
 		// TODO Auto-generated constructor stub
 		this.albedo = albedo;
 		this.age = age;
@@ -19,5 +18,29 @@ public class daisy {
 	public boolean check_live(int max_age){
 		age++;
 		return (age<=max_age);
+	}
+
+	public DaisyColor getColor() {
+		return color;
+	}
+
+	public void setColor(DaisyColor color) {
+		this.color = color;
+	}
+
+	public int getAge() {
+		return age;
+	}
+
+	public void addAge() {
+		age++;
+	}
+
+	public double getAlbedo() {
+		return albedo;
+	}
+
+	public void setAlbedo(double albedo) {
+		this.albedo = albedo;
 	}
 }
