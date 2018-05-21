@@ -62,7 +62,7 @@ public class Main {
 		row1.createCell(3).setCellValue(daisyAmount(daisyWorld, DaisyColor.WHITE));
 
 		// 开始进行更新，并绘制折线图
-		for (int tick = 0; tick < 300; tick++) {
+		for (int tick = 0; tick < 100; tick++) {
 			//Params.setSOLAR_LUMINOSITY(tick);
 			// 计算温度
 			for (int i = 0; i < Params.PATCH_SIZE; i++) {
@@ -127,7 +127,7 @@ public class Main {
 				int y = random.nextInt(Params.PATCH_SIZE);
 				if (!daisyWorld[x][y].hasDaisy()) {
 					daisyWorld[x][y]
-							.setDaisy_here(new Daisy(color, random.nextInt(Params.MAX_AGE), Params.ALBEDO_OF_BLACK));
+							.setDaisy_here(new Daisy(color, random.nextInt(Params.MAX_AGE+1), Params.ALBEDO_OF_BLACK));
 					i++;
 				} else {
 					continue;
@@ -139,7 +139,7 @@ public class Main {
 				int y = random.nextInt(Params.PATCH_SIZE);
 				if (!daisyWorld[x][y].hasDaisy()) {
 					daisyWorld[x][y]
-							.setDaisy_here(new Daisy(color, random.nextInt(Params.MAX_AGE), Params.ALBEDO_OF_WHITES));
+							.setDaisy_here(new Daisy(color, random.nextInt(Params.MAX_AGE+1), Params.ALBEDO_OF_WHITES));
 					i++;
 				} else {
 					continue;
@@ -169,7 +169,7 @@ public class Main {
 		double[][] diffusion = new double[Params.PATCH_SIZE][Params.PATCH_SIZE];
 		for (int i = 0; i < Params.PATCH_SIZE; i++) {
 			for (int j = 0; j < Params.PATCH_SIZE; j++) {
-				diffusion[i][j] = (daisyWorld[i][j].getTemperature()) / 8;
+				diffusion[i][j] = (daisyWorld[i][j].getTemperature()) / 16;
 			}
 		}
 
@@ -183,28 +183,28 @@ public class Main {
 				// 左上角
 				if (i == 0 && j == 0) {
 					absorbed_temp = diffusion[0][1] + diffusion[1][0] + diffusion[1][1];
-					final_temp = absorbed_temp + current_temp / 2;
+					final_temp = absorbed_temp + current_temp*(13/16);
 					daisyWorld[i][j].setTemperature(final_temp);
 					continue;
 				}
 				// 右上角
 				if (i == 0 && j == Params.PATCH_SIZE - 1) {
 					absorbed_temp = diffusion[i][j - 1] + diffusion[i + 1][j - 1] + diffusion[i + 1][j];
-					final_temp = absorbed_temp + current_temp / 2;
+					final_temp = absorbed_temp + current_temp*(13/16);
 					daisyWorld[i][j].setTemperature(final_temp);
 					continue;
 				}
 				// 左下角
 				if (i == Params.PATCH_SIZE - 1 && j == 0) {
 					absorbed_temp = diffusion[i - 1][j] + diffusion[i - 1][j + 1] + diffusion[i][j + 1];
-					final_temp = absorbed_temp + current_temp / 2;
+					final_temp = absorbed_temp + current_temp*(13/16);
 					daisyWorld[i][j].setTemperature(final_temp);
 					continue;
 				}
 				// 右下角
 				if (i == Params.PATCH_SIZE - 1 && j == Params.PATCH_SIZE - 1) {
 					absorbed_temp = diffusion[i][j - 1] + diffusion[i - 1][j] + diffusion[i - 1][j - 1];
-					final_temp = absorbed_temp + current_temp / 2;
+					final_temp = absorbed_temp + current_temp*(13/16);
 					daisyWorld[i][j].setTemperature(final_temp);
 					continue;
 				}
@@ -212,7 +212,7 @@ public class Main {
 				if (i == 0 && 0 < j && j < Params.PATCH_SIZE - 1) {
 					absorbed_temp = diffusion[i][j - 1] + diffusion[i][j + 1] + diffusion[i + 1][j - 1]
 							+ diffusion[i + 1][j] + diffusion[i + 1][j + 1];
-					final_temp = absorbed_temp + current_temp / 2;
+					final_temp = absorbed_temp + current_temp*(11/16);
 					daisyWorld[i][j].setTemperature(final_temp);
 					continue;
 				}
@@ -220,7 +220,7 @@ public class Main {
 				if (i == Params.PATCH_SIZE - 1 && 0 < j && j < Params.PATCH_SIZE - 1) {
 					absorbed_temp = diffusion[i][j - 1] + diffusion[i][j + 1] + diffusion[i - 1][j - 1]
 							+ diffusion[i - 1][j] + diffusion[i - 1][j + 1];
-					final_temp = absorbed_temp + current_temp / 2;
+					final_temp = absorbed_temp + current_temp*(11/16);
 					daisyWorld[i][j].setTemperature(final_temp);
 					continue;
 				}
@@ -228,7 +228,7 @@ public class Main {
 				if (j == 0 && 0 < i && i < Params.PATCH_SIZE - 1) {
 					absorbed_temp = diffusion[i - 1][j] + diffusion[i + 1][j] + diffusion[i - 1][j + 1]
 							+ diffusion[i][j + 1] + diffusion[i + 1][j + 1];
-					final_temp = absorbed_temp + current_temp / 2;
+					final_temp = absorbed_temp + current_temp*(11/16);
 					daisyWorld[i][j].setTemperature(final_temp);
 					continue;
 				}
@@ -236,7 +236,7 @@ public class Main {
 				if (j == Params.PATCH_SIZE - 1 && 0 < i && i < Params.PATCH_SIZE - 1) {
 					absorbed_temp = diffusion[i][j - 1] + diffusion[i - 1][j - 1] + diffusion[i + 1][j - 1]
 							+ diffusion[i - 1][j] + diffusion[i + 1][j];
-					final_temp = absorbed_temp + current_temp / 2;
+					final_temp = absorbed_temp + current_temp*(11/16);
 					daisyWorld[i][j].setTemperature(final_temp);
 					continue;
 				}
@@ -245,7 +245,7 @@ public class Main {
 					absorbed_temp = diffusion[i - 1][j - 1] + diffusion[i - 1][j] + diffusion[i - 1][j + 1]
 							+ diffusion[i][j - 1] + diffusion[i][j + 1] + diffusion[i + 1][j - 1] + diffusion[i + 1][j]
 							+ diffusion[i + 1][j + 1];
-					final_temp = absorbed_temp + current_temp / 2;
+					final_temp = absorbed_temp + current_temp/2;
 					daisyWorld[i][j].setTemperature(final_temp);
 					continue;
 				}

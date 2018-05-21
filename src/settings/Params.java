@@ -11,7 +11,7 @@ public class Params {
 	public static final double ALBEDO_OF_BLACK = 0.25;
 	public static final double ALBEDO_OF_SURFACE =0.4;
 	
-	public static double SOLAR_LUMINOSITY = 0.6;
+	public static double SOLAR_LUMINOSITY = 1.4;
 	
 	public static void setSOLAR_LUMINOSITY(int tick) {
 		if(tick>200 && tick <= 400) {
