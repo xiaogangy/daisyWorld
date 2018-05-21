@@ -1,3 +1,3 @@
 package settings;
-
-public enum DaisyColor {BLACK, WHITE}
+//Enumerate the daisy's color
+public enum DaisyColor {BLACK, WHITE, GRAY}

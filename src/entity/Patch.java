@@ -46,6 +46,9 @@ public class Patch {
 			absorbed_luminosity = (1-Params.ALBEDO_OF_BLACK)*Params.SOLAR_LUMINOSITY;
 		}else if(daisy_here.getColor() == DaisyColor.WHITE){
 			absorbed_luminosity = (1-Params.ALBEDO_OF_WHITES)*Params.SOLAR_LUMINOSITY;
+		}else if(daisy_here.getColor() == DaisyColor.GRAY) {
+			// Calculate the absorbed luminosity of gray daisy
+			absorbed_luminosity = (1-Params.ALBEDO_OF_GRAY)*Params.SOLAR_LUMINOSITY;
 		}
 		
 		if(absorbed_luminosity > 0) {

@@ -29,11 +29,15 @@ public class Main {
 		cell.setCellValue("BlackPopulation");
 		cell = row.createCell(3);
 		cell.setCellValue("WhitePopulation");
+		cell = row.createCell(4);
+		cell.setCellValue("GrayPopulation");
 
 		Patch[][] daisyWorld = new Patch[Params.PATCH_SIZE][Params.PATCH_SIZE];
 		double global_temperature = 0;
 		int whiteAmount;
 		int blackAmount;
+		// The amount of the gray daisy
+		int grayAmount;
 
 		// 初始化daisyWorld
 		for (int i = 0; i < Params.PATCH_SIZE; i++) {
@@ -45,6 +49,7 @@ public class Main {
 		// 随机播撒种子
 		seed_randomly(daisyWorld, DaisyColor.BLACK);
 		seed_randomly(daisyWorld, DaisyColor.WHITE);
+		seed_randomly(daisyWorld, DaisyColor.GRAY);
 
 		// 计算每个patch的温度
 		for (int i = 0; i < Params.PATCH_SIZE; i++) {
@@ -60,6 +65,7 @@ public class Main {
 		row1.createCell(1).setCellValue(global_temperature);
 		row1.createCell(2).setCellValue(daisyAmount(daisyWorld, DaisyColor.BLACK));
 		row1.createCell(3).setCellValue(daisyAmount(daisyWorld, DaisyColor.WHITE));
+		row1.createCell(4).setCellValue(daisyAmount(daisyWorld, DaisyColor.GRAY));
 
 		// 开始进行更新，并绘制折线图
 		for (int tick = 0; tick < 100; tick++) {
@@ -78,6 +84,7 @@ public class Main {
 			global_temperature = average_Temperature(daisyWorld);
 			blackAmount = daisyAmount(daisyWorld, DaisyColor.BLACK);
 			whiteAmount = daisyAmount(daisyWorld, DaisyColor.WHITE);
+			grayAmount = daisyAmount(daisyWorld, DaisyColor.GRAY);
 
 			// System.out.println(tick);
 			// 写入Excel表中
@@ -86,6 +93,7 @@ public class Main {
 			row2.createCell(1).setCellValue(global_temperature);
 			row2.createCell(2).setCellValue(blackAmount);
 			row2.createCell(3).setCellValue(whiteAmount);
+			row2.createCell(4).setCellValue(grayAmount);
 		}
 		System.out.println("更新结束");
 		// 生成文件
@@ -133,13 +141,25 @@ public class Main {
 					continue;
 				}
 			}
-		} else {
-			while (i < Params.PATCH_SIZE * Params.PATCH_SIZE * Params.NUM_BLACKS) {
+		} else if(color == DaisyColor.WHITE){
+			while (i < Params.PATCH_SIZE * Params.PATCH_SIZE * Params.NUM_WHITES) {
 				int x = random.nextInt(Params.PATCH_SIZE);
 				int y = random.nextInt(Params.PATCH_SIZE);
 				if (!daisyWorld[x][y].hasDaisy()) {
 					daisyWorld[x][y]
 							.setDaisy_here(new Daisy(color, random.nextInt(Params.MAX_AGE+1), Params.ALBEDO_OF_WHITES));
+					i++;
+				} else {
+					continue;
+				}
+			}
+		}else if (color == DaisyColor.GRAY) {
+			while (i < Params.PATCH_SIZE * Params.PATCH_SIZE * Params.NUM_GRAY) {
+				int x = random.nextInt(Params.PATCH_SIZE);
+				int y = random.nextInt(Params.PATCH_SIZE);
+				if (!daisyWorld[x][y].hasDaisy()) {
+					daisyWorld[x][y]
+							.setDaisy_here(new Daisy(color, random.nextInt(Params.MAX_AGE+1), Params.ALBEDO_OF_GRAY));
 					i++;
 				} else {
 					continue;
@@ -262,11 +282,13 @@ public class Main {
 		// double temperature = here.getTemperature();
 		// 当前patch出的daisy颜色和反光率
 		DaisyColor color = here.getDaisy_here().getColor();
-		double albedo;
+		double albedo = 0;
 		if (color == DaisyColor.WHITE) {
 			albedo = Params.ALBEDO_OF_WHITES;
-		} else {
+		} else if(color == DaisyColor.BLACK) {
 			albedo = Params.ALBEDO_OF_BLACK;
+		}else if(color == DaisyColor.GRAY){
+			albedo = Params.ALBEDO_OF_GRAY;
 		}
 
 		// 左上角
@@ -604,17 +626,32 @@ public class Main {
 					// 增长一岁
 					here.getDaisy_here().addAge();
 					// 开始判断
-					if (here.getDaisy_here().getAge() < Params.MAX_AGE) {
-						// 在周边找一个种植daisy
-						seed_threshold = ((0.1457 * temperature) - (0.0032 * (temperature * temperature)) - 0.6443);
-						if (Math.random() < seed_threshold) {
-							// 选择空地
-							// 种植种子
-							reproduce(daisyWorld, i, j);
+					if(here.getDaisy_here().getColor() == DaisyColor.GRAY) {
+						if (here.getDaisy_here().getAge() <= Params.GRAY_AGE) {
+							// 在周边找一个种植daisy
+							seed_threshold = ((0.1457 * temperature) - (0.0032 * (temperature * temperature)) - 0.6443);
+							if (Math.random() < seed_threshold) {
+								// 选择空地
+								// 种植种子
+								reproduce(daisyWorld, i, j);
+							}
+						} else {
+							// daisy dies, temperature remain unchanged死亡，将该地设置为空地
+							daisyWorld[i][j].setDaisy_here(null);
 						}
 					} else {
-						// daisy dies, temperature remain unchanged死亡，将该地设置为空地
-						daisyWorld[i][j].setDaisy_here(null);
+						if (here.getDaisy_here().getAge() <= Params.MAX_AGE) {
+							// 在周边找一个种植daisy
+							seed_threshold = ((0.1457 * temperature) - (0.0032 * (temperature * temperature)) - 0.6443);
+							if (Math.random() < seed_threshold) {
+								// 选择空地
+								// 种植种子
+								reproduce(daisyWorld, i, j);
+							}
+						} else {
+							// daisy dies, temperature remain unchanged死亡，将该地设置为空地
+							daisyWorld[i][j].setDaisy_here(null);
+						}
 					}
 				}
 			}
