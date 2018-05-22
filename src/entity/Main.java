@@ -1,115 +1,103 @@
-package entity;
+//package entity;
 
-import org.apache.poi.hssf.usermodel.HSSFCell;
-import org.apache.poi.hssf.usermodel.HSSFRow;
-import org.apache.poi.hssf.usermodel.HSSFSheet;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import java.io.FileOutputStream;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Random;
-import settings.*;
 
 public class Main {
 
+	/**
+	 * main function
+	 * 
+	 * @param args
+	 */
 	public static void main(String[] args) {
 
-		// 第一步，创建一个workbook对应一个excel文件
-		HSSFWorkbook workbook = new HSSFWorkbook();
-		// 第二部，在workbook中创建一个sheet对应excel中的sheet
-		HSSFSheet sheet = workbook.createSheet("ExcelTable1");
-		// 第三部，在sheet表中添加表头第0行，老版本的poi对sheet的行列有限制
-		HSSFRow row = sheet.createRow(0);
-		// 第四步，创建单元格，设置表头
-		HSSFCell cell = row.createCell(0);
-		cell.setCellValue("Tick");
-		cell = row.createCell(1);
-		cell.setCellValue("GlobalTemperature");
-		cell = row.createCell(2);
-		cell.setCellValue("BlackPopulation");
-		cell = row.createCell(3);
-		cell.setCellValue("WhitePopulation");
-		cell = row.createCell(4);
-		cell.setCellValue("GrayPopulation");
+		try {
+			// IO Setup
+			File csv = new File("Data.csv"); // create a data.csv file to store the data
+			BufferedWriter bw = new BufferedWriter(new FileWriter(csv));
+			// Set up the table header
+			bw.write("GlobalTemperature" + "," + "BlackPopulation" + "," + "WhitePopulation" + "," + "GrayPopulation");
+			bw.newLine();
+			// Declare the daisyWorld which is a two-dimensional array
+			Patch[][] daisyWorld = new Patch[Params.PATCH_SIZE][Params.PATCH_SIZE];
+			double global_temperature = 0;
+			int whiteAmount;
+			int blackAmount;
+			int grayAmount;
 
-		Patch[][] daisyWorld = new Patch[Params.PATCH_SIZE][Params.PATCH_SIZE];
-		double global_temperature = 0;
-		int whiteAmount;
-		int blackAmount;
-		// The amount of the gray daisy
-		int grayAmount;
-
-		// 初始化daisyWorld
-		for (int i = 0; i < Params.PATCH_SIZE; i++) {
-			for (int j = 0; j < Params.PATCH_SIZE; j++) {
-				daisyWorld[i][j] = new Patch(0);
+			// Initialize the daisyWorld
+			for (int i = 0; i < Params.PATCH_SIZE; i++) {
+				for (int j = 0; j < Params.PATCH_SIZE; j++) {
+					daisyWorld[i][j] = new Patch(0);
+				}
 			}
-		}
 
-		// 随机播撒种子
-		seed_randomly(daisyWorld, DaisyColor.BLACK);
-		seed_randomly(daisyWorld, DaisyColor.WHITE);
-		seed_randomly(daisyWorld, DaisyColor.GRAY);
+			// Sow the seeds in a random way
+			seed_randomly(daisyWorld, DaisyColor.BLACK);
+			seed_randomly(daisyWorld, DaisyColor.WHITE);
+			seed_randomly(daisyWorld, DaisyColor.GRAY);
 
-		// 计算每个patch的温度
-		for (int i = 0; i < Params.PATCH_SIZE; i++) {
-			for (int j = 0; j < Params.PATCH_SIZE; j++) {
-				daisyWorld[i][j].calc_temperature();
-			}
-		}
-		// 计算平均温度
-		global_temperature = average_Temperature(daisyWorld);
-
-		HSSFRow row1 = sheet.createRow(1);
-		row1.createCell(0).setCellValue(0);
-		row1.createCell(1).setCellValue(global_temperature);
-		row1.createCell(2).setCellValue(daisyAmount(daisyWorld, DaisyColor.BLACK));
-		row1.createCell(3).setCellValue(daisyAmount(daisyWorld, DaisyColor.WHITE));
-		row1.createCell(4).setCellValue(daisyAmount(daisyWorld, DaisyColor.GRAY));
-
-		// 开始进行更新，并绘制折线图
-		for (int tick = 0; tick < 100; tick++) {
-			//Params.setSOLAR_LUMINOSITY(tick);
-			// 计算温度
+			// Update the temperature in every patch
 			for (int i = 0; i < Params.PATCH_SIZE; i++) {
 				for (int j = 0; j < Params.PATCH_SIZE; j++) {
 					daisyWorld[i][j].calc_temperature();
 				}
 			}
-			// 温度消散
-			diffusion(daisyWorld);
-			// 检查存活率并繁殖
-			checkSurvivability(daisyWorld);
-			// 计算平均温度
-			global_temperature = average_Temperature(daisyWorld);
-			blackAmount = daisyAmount(daisyWorld, DaisyColor.BLACK);
-			whiteAmount = daisyAmount(daisyWorld, DaisyColor.WHITE);
-			grayAmount = daisyAmount(daisyWorld, DaisyColor.GRAY);
 
-			// System.out.println(tick);
-			// 写入Excel表中
-			HSSFRow row2 = sheet.createRow(tick + 2);
-			row2.createCell(0).setCellValue(tick + 1);
-			row2.createCell(1).setCellValue(global_temperature);
-			row2.createCell(2).setCellValue(blackAmount);
-			row2.createCell(3).setCellValue(whiteAmount);
-			row2.createCell(4).setCellValue(grayAmount);
-		}
-		System.out.println("更新结束");
-		// 生成文件
-		try {
-			FileOutputStream fos = new FileOutputStream("E:\\global.xls");
-			workbook.write(fos);
-			System.out.println("写入成功");
-			fos.close();
-			workbook.close();
+			// Calculate the initial global temperature
+			global_temperature = average_Temperature(daisyWorld);
+
+			// Write the first set of data into the data.csv file
+			bw.write(0 + "," + global_temperature + "," + daisyAmount(daisyWorld, DaisyColor.BLACK) + ","
+					+ daisyAmount(daisyWorld, DaisyColor.WHITE) + "," + daisyAmount(daisyWorld, DaisyColor.GRAY));
+			bw.newLine();
+
+			// Update rules, in alignment with the go procedure in the NetLogo code
+			for (int tick = 0; tick < 100; tick++) {
+				// Params.setSOLAR_LUMINOSITY(tick);
+				for (int i = 0; i < Params.PATCH_SIZE; i++) {
+					for (int j = 0; j < Params.PATCH_SIZE; j++) {
+						daisyWorld[i][j].calc_temperature();
+					}
+				}
+				// Diffuse the temperature to its neighbours
+				diffusion(daisyWorld);
+				// Check the survivability of daisies and reproduce
+				checkSurvivability(daisyWorld);
+				// Calculate the global temperature
+				global_temperature = average_Temperature(daisyWorld);
+				blackAmount = daisyAmount(daisyWorld, DaisyColor.BLACK);
+				whiteAmount = daisyAmount(daisyWorld, DaisyColor.WHITE);
+				grayAmount = daisyAmount(daisyWorld, DaisyColor.GRAY);
+				// Write the new data in that tick into the data file
+				bw.write(
+						tick + 1 + "," + global_temperature + "," + blackAmount + "," + whiteAmount + "," + grayAmount);
+				bw.newLine();
+			}
+			System.out.println("更新结束");
+			bw.close();
+		} catch (FileNotFoundException e) {
+			// Capture the exceptions during creating the files
+			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 
 	}
 
-	// 统计各色的daisy
+	/**
+	 * Calculate the amount of the daisy in given color
+	 * 
+	 * @param daisyWorld
+	 * @param color
+	 * @return count
+	 */
 	private static int daisyAmount(Patch[][] daisyWorld, DaisyColor color) {
 		int count = 0;
 		for (int i = 0; i < Params.PATCH_SIZE; i++) {
@@ -125,7 +113,13 @@ public class Main {
 		return count;
 	}
 
-	// 随机播撒种子
+	/**
+	 * Randomly choose predefined number of the whole patches to sow the daisies
+	 * with specific color
+	 * 
+	 * @param daisyWorld
+	 * @param color
+	 */
 	private static void seed_randomly(Patch[][] daisyWorld, DaisyColor color) {
 		Random random = new Random();
 		int i = 0;
@@ -134,32 +128,32 @@ public class Main {
 				int x = random.nextInt(Params.PATCH_SIZE);
 				int y = random.nextInt(Params.PATCH_SIZE);
 				if (!daisyWorld[x][y].hasDaisy()) {
-					daisyWorld[x][y]
-							.setDaisy_here(new Daisy(color, random.nextInt(Params.MAX_AGE+1), Params.ALBEDO_OF_BLACK));
+					daisyWorld[x][y].setDaisy_here(
+							new Daisy(color, random.nextInt(Params.MAX_AGE + 1), Params.ALBEDO_OF_BLACK));
 					i++;
 				} else {
 					continue;
 				}
 			}
-		} else if(color == DaisyColor.WHITE){
+		} else if (color == DaisyColor.WHITE) {
 			while (i < Params.PATCH_SIZE * Params.PATCH_SIZE * Params.NUM_WHITES) {
 				int x = random.nextInt(Params.PATCH_SIZE);
 				int y = random.nextInt(Params.PATCH_SIZE);
 				if (!daisyWorld[x][y].hasDaisy()) {
-					daisyWorld[x][y]
-							.setDaisy_here(new Daisy(color, random.nextInt(Params.MAX_AGE+1), Params.ALBEDO_OF_WHITES));
+					daisyWorld[x][y].setDaisy_here(
+							new Daisy(color, random.nextInt(Params.MAX_AGE + 1), Params.ALBEDO_OF_WHITES));
 					i++;
 				} else {
 					continue;
 				}
 			}
-		}else if (color == DaisyColor.GRAY) {
+		} else if (color == DaisyColor.GRAY) {
 			while (i < Params.PATCH_SIZE * Params.PATCH_SIZE * Params.NUM_GRAY) {
 				int x = random.nextInt(Params.PATCH_SIZE);
 				int y = random.nextInt(Params.PATCH_SIZE);
 				if (!daisyWorld[x][y].hasDaisy()) {
-					daisyWorld[x][y]
-							.setDaisy_here(new Daisy(color, random.nextInt(Params.MAX_AGE+1), Params.ALBEDO_OF_GRAY));
+					daisyWorld[x][y].setDaisy_here(
+							new Daisy(color, random.nextInt(Params.MAX_AGE + 1), Params.ALBEDO_OF_GRAY));
 					i++;
 				} else {
 					continue;
@@ -168,7 +162,11 @@ public class Main {
 		}
 	}
 
-	// 计算全局平均温度
+	/**
+	 * Calculate the global temperature
+	 * @param daisyWorld
+	 * @return global_temperature
+	 */
 	private static double average_Temperature(Patch[][] daisyWorld) {
 		double global_temperature;
 		double amount = 0;
@@ -182,90 +180,94 @@ public class Main {
 
 	}
 
-	// 温度消散
+	/**
+	 * Patch procedure: Diffuse 50% of local temperature to its neighbours
+	 * @param daisyWorld
+	 */
 	private static void diffusion(Patch[][] daisyWorld) {
 
-		// 消散矩阵
+		// Declare a two-dimensional matrix to store the diffused temperature of a patch
 		double[][] diffusion = new double[Params.PATCH_SIZE][Params.PATCH_SIZE];
 		for (int i = 0; i < Params.PATCH_SIZE; i++) {
 			for (int j = 0; j < Params.PATCH_SIZE; j++) {
+				// Diffuse half of the temperature to 8 neighbours, each neighbour get 1/16
 				diffusion[i][j] = (daisyWorld[i][j].getTemperature()) / 16;
 			}
 		}
 
-		// 吸收温度
+		// Patch absorbs the temperature from its neighbours
 		for (int i = 0; i < Params.PATCH_SIZE; i++) {
 			for (int j = 0; j < Params.PATCH_SIZE; j++) {
 				double current_temp = daisyWorld[i][j].getTemperature();
 				double final_temp;
 				double absorbed_temp;
 
-				// 左上角
+				// top left corner
 				if (i == 0 && j == 0) {
 					absorbed_temp = diffusion[0][1] + diffusion[1][0] + diffusion[1][1];
-					final_temp = absorbed_temp + current_temp*(13/16);
+					final_temp = absorbed_temp + current_temp * (13 / 16);
 					daisyWorld[i][j].setTemperature(final_temp);
 					continue;
 				}
-				// 右上角
+				// top right corner
 				if (i == 0 && j == Params.PATCH_SIZE - 1) {
 					absorbed_temp = diffusion[i][j - 1] + diffusion[i + 1][j - 1] + diffusion[i + 1][j];
-					final_temp = absorbed_temp + current_temp*(13/16);
+					final_temp = absorbed_temp + current_temp * (13 / 16);
 					daisyWorld[i][j].setTemperature(final_temp);
 					continue;
 				}
-				// 左下角
+				// bottom left corner
 				if (i == Params.PATCH_SIZE - 1 && j == 0) {
 					absorbed_temp = diffusion[i - 1][j] + diffusion[i - 1][j + 1] + diffusion[i][j + 1];
-					final_temp = absorbed_temp + current_temp*(13/16);
+					final_temp = absorbed_temp + current_temp * (13 / 16);
 					daisyWorld[i][j].setTemperature(final_temp);
 					continue;
 				}
-				// 右下角
+				// bottom right corner
 				if (i == Params.PATCH_SIZE - 1 && j == Params.PATCH_SIZE - 1) {
 					absorbed_temp = diffusion[i][j - 1] + diffusion[i - 1][j] + diffusion[i - 1][j - 1];
-					final_temp = absorbed_temp + current_temp*(13/16);
+					final_temp = absorbed_temp + current_temp * (13 / 16);
 					daisyWorld[i][j].setTemperature(final_temp);
 					continue;
 				}
-				// 上边
+				// top line 
 				if (i == 0 && 0 < j && j < Params.PATCH_SIZE - 1) {
 					absorbed_temp = diffusion[i][j - 1] + diffusion[i][j + 1] + diffusion[i + 1][j - 1]
 							+ diffusion[i + 1][j] + diffusion[i + 1][j + 1];
-					final_temp = absorbed_temp + current_temp*(11/16);
+					final_temp = absorbed_temp + current_temp * (11 / 16);
 					daisyWorld[i][j].setTemperature(final_temp);
 					continue;
 				}
-				// 下边
+				// bottom line
 				if (i == Params.PATCH_SIZE - 1 && 0 < j && j < Params.PATCH_SIZE - 1) {
 					absorbed_temp = diffusion[i][j - 1] + diffusion[i][j + 1] + diffusion[i - 1][j - 1]
 							+ diffusion[i - 1][j] + diffusion[i - 1][j + 1];
-					final_temp = absorbed_temp + current_temp*(11/16);
+					final_temp = absorbed_temp + current_temp * (11 / 16);
 					daisyWorld[i][j].setTemperature(final_temp);
 					continue;
 				}
-				// 左边
+				// left column
 				if (j == 0 && 0 < i && i < Params.PATCH_SIZE - 1) {
 					absorbed_temp = diffusion[i - 1][j] + diffusion[i + 1][j] + diffusion[i - 1][j + 1]
 							+ diffusion[i][j + 1] + diffusion[i + 1][j + 1];
-					final_temp = absorbed_temp + current_temp*(11/16);
+					final_temp = absorbed_temp + current_temp * (11 / 16);
 					daisyWorld[i][j].setTemperature(final_temp);
 					continue;
 				}
-				// 右边
+				// right column
 				if (j == Params.PATCH_SIZE - 1 && 0 < i && i < Params.PATCH_SIZE - 1) {
 					absorbed_temp = diffusion[i][j - 1] + diffusion[i - 1][j - 1] + diffusion[i + 1][j - 1]
 							+ diffusion[i - 1][j] + diffusion[i + 1][j];
-					final_temp = absorbed_temp + current_temp*(11/16);
+					final_temp = absorbed_temp + current_temp * (11 / 16);
 					daisyWorld[i][j].setTemperature(final_temp);
 					continue;
 				}
-				// 中间的点
+				// Medium points
 				if (0 < i && i < Params.PATCH_SIZE - 1 && 0 < j && j < Params.PATCH_SIZE - 1) {
 					absorbed_temp = diffusion[i - 1][j - 1] + diffusion[i - 1][j] + diffusion[i - 1][j + 1]
 							+ diffusion[i][j - 1] + diffusion[i][j + 1] + diffusion[i + 1][j - 1] + diffusion[i + 1][j]
 							+ diffusion[i + 1][j + 1];
-					final_temp = absorbed_temp + current_temp/2;
+					final_temp = absorbed_temp + current_temp / 2;
 					daisyWorld[i][j].setTemperature(final_temp);
 					continue;
 				}
@@ -273,25 +275,31 @@ public class Main {
 		}
 	}
 
-	// 选择空地并繁殖
+	/**
+	 * Daisy procedure: according to the quadratic function, daisy has different possibility to 
+	 * reproduce in one of the empty patch around it. When randomly picking up the empty patch,
+	 * use specific integer to represent the neighbours' position.
+	 * @param daisyWorld
+	 * @param i
+	 * @param j
+	 */
 	private static void reproduce(Patch[][] daisyWorld, int i, int j) {
-		// 用来保存neighbour中空点的集合
+		// Declare an arrayList to store the empty patches in the neighbourhood
 		ArrayList<Integer> temp = new ArrayList<Integer>();
 		Random random = new Random();
 		Patch here = daisyWorld[i][j];
-		// double temperature = here.getTemperature();
-		// 当前patch出的daisy颜色和反光率
+		// Save the color and albedo of the current patch
 		DaisyColor color = here.getDaisy_here().getColor();
 		double albedo = 0;
 		if (color == DaisyColor.WHITE) {
 			albedo = Params.ALBEDO_OF_WHITES;
-		} else if(color == DaisyColor.BLACK) {
+		} else if (color == DaisyColor.BLACK) {
 			albedo = Params.ALBEDO_OF_BLACK;
-		}else if(color == DaisyColor.GRAY){
+		} else if (color == DaisyColor.GRAY) {
 			albedo = Params.ALBEDO_OF_GRAY;
 		}
-
-		// 左上角
+		
+		// top left corner
 		if (i == 0 && j == 0) {
 			if (!daisyWorld[i][j + 1].hasDaisy()) {
 				temp.add(5);
@@ -302,12 +310,12 @@ public class Main {
 			if (!daisyWorld[i + 1][j + 1].hasDaisy()) {
 				temp.add(8);
 			}
-			// 种植reproduce
-			if(temp.size()>0) {
+			// Randomly choosing an empty patch and reproduce
+			if (temp.size() > 0) {
 				int selected = random.nextInt(temp.size());
 				switch (temp.get(selected)) {
 				case 5:
-					daisyWorld[i][j+1].setDaisy_here(new Daisy(color, 0, albedo));
+					daisyWorld[i][j + 1].setDaisy_here(new Daisy(color, 0, albedo));
 					break;
 				case 7:
 					daisyWorld[i + 1][j].setDaisy_here(new Daisy(color, 0, albedo));
@@ -318,7 +326,7 @@ public class Main {
 				}
 			}
 		}
-		// 右上角
+		// top right corner
 		if (i == 0 && j == Params.PATCH_SIZE - 1) {
 			if (!daisyWorld[i][j - 1].hasDaisy()) {
 				temp.add(4);
@@ -329,8 +337,8 @@ public class Main {
 			if (!daisyWorld[i + 1][j].hasDaisy()) {
 				temp.add(7);
 			}
-			// 种植reproduce
-			if(temp.size()>0) {
+			// Randomly choosing an empty patch and reproduce
+			if (temp.size() > 0) {
 				int selected = random.nextInt(temp.size());
 				switch (temp.get(selected)) {
 				case 4:
@@ -345,7 +353,7 @@ public class Main {
 				}
 			}
 		}
-		// 左下角
+		// bottom left corner
 		if (i == Params.PATCH_SIZE - 1 && j == 0) {
 			if (!daisyWorld[i - 1][j].hasDaisy()) {
 				temp.add(2);
@@ -356,8 +364,8 @@ public class Main {
 			if (!daisyWorld[i][j + 1].hasDaisy()) {
 				temp.add(5);
 			}
-			// 种植reproduce
-			if(temp.size()>0) {
+			// Randomly choosing an empty patch and reproduce
+			if (temp.size() > 0) {
 				int selected = random.nextInt(temp.size());
 				switch (temp.get(selected)) {
 				case 2:
@@ -372,7 +380,7 @@ public class Main {
 				}
 			}
 		}
-		// 右下角
+		// bottom right corner
 		if (i == Params.PATCH_SIZE - 1 && j == Params.PATCH_SIZE - 1) {
 			if (!daisyWorld[i - 1][j - 1].hasDaisy()) {
 				temp.add(1);
@@ -383,8 +391,8 @@ public class Main {
 			if (!daisyWorld[i][j - 1].hasDaisy()) {
 				temp.add(4);
 			}
-			// 种植reproduce
-			if(temp.size()>0) {
+			// Randomly choosing an empty patch and reproduce
+			if (temp.size() > 0) {
 				int selected = random.nextInt(temp.size());
 				switch (temp.get(selected)) {
 				case 1:
@@ -399,7 +407,7 @@ public class Main {
 				}
 			}
 		}
-		// 上边(5个邻居)
+		// top row (5 neighbours)
 		if (i == 0 && j > 0 && j < Params.PATCH_SIZE - 1) {
 			if (!daisyWorld[i][j - 1].hasDaisy()) {
 				temp.add(4);
@@ -416,8 +424,8 @@ public class Main {
 			if (!daisyWorld[i + 1][j + 1].hasDaisy()) {
 				temp.add(8);
 			}
-			// 种植reproduce
-			if(temp.size()>0) {
+			// Randomly choosing an empty patch and reproduce
+			if (temp.size() > 0) {
 				int selected = random.nextInt(temp.size());
 				switch (temp.get(selected)) {
 				case 4:
@@ -436,9 +444,9 @@ public class Main {
 					daisyWorld[i + 1][j + 1].setDaisy_here(new Daisy(color, 0, albedo));
 					break;
 				}
-			}	
+			}
 		}
-		// 左边(5个邻居)
+		// left column
 		if (j == 0 && i > 0 && i < Params.PATCH_SIZE - 1) {
 			if (!daisyWorld[i - 1][j].hasDaisy()) {
 				temp.add(2);
@@ -455,8 +463,8 @@ public class Main {
 			if (!daisyWorld[i + 1][j + 1].hasDaisy()) {
 				temp.add(8);
 			}
-			// 种植reproduce
-			if(temp.size()>0) {
+			// Randomly choosing an empty patch and reproduce
+			if (temp.size() > 0) {
 				int selected = random.nextInt(temp.size());
 				switch (temp.get(selected)) {
 				case 2:
@@ -477,7 +485,7 @@ public class Main {
 				}
 			}
 		}
-		// 下边
+		// bottom row
 		if (i == Params.PATCH_SIZE - 1 && j > 0 && j < Params.PATCH_SIZE - 1) {
 			if (!daisyWorld[i - 1][j - 1].hasDaisy()) {
 				temp.add(1);
@@ -494,8 +502,8 @@ public class Main {
 			if (!daisyWorld[i][j + 1].hasDaisy()) {
 				temp.add(5);
 			}
-			// 种植reproduce
-			if(temp.size()>0) {
+			// Randomly choosing an empty patch and reproduce
+			if (temp.size() > 0) {
 				int selected = random.nextInt(temp.size());
 				switch (temp.get(selected)) {
 				case 1:
@@ -516,7 +524,7 @@ public class Main {
 				}
 			}
 		}
-		// 右边
+		// right column
 		if (j == Params.PATCH_SIZE - 1 && i > 0 && i < Params.PATCH_SIZE - 1) {
 			if (!daisyWorld[i - 1][j - 1].hasDaisy()) {
 				temp.add(1);
@@ -533,8 +541,8 @@ public class Main {
 			if (!daisyWorld[i + 1][j].hasDaisy()) {
 				temp.add(7);
 			}
-			// 种植reproduce
-			if(temp.size()>0) {
+			// Randomly choosing an empty patch and reproduce
+			if (temp.size() > 0) {
 				int selected = random.nextInt(temp.size());
 				switch (temp.get(selected)) {
 				case 1:
@@ -555,7 +563,7 @@ public class Main {
 				}
 			}
 		}
-		// 中间点(8个邻居)
+		// mdedium points
 		if (i > 0 && i < Params.PATCH_SIZE - 1 && j > 0 && j < Params.PATCH_SIZE - 1) {
 			if (!daisyWorld[i - 1][j - 1].hasDaisy()) {
 				temp.add(1);
@@ -581,8 +589,8 @@ public class Main {
 			if (!daisyWorld[i + 1][j + 1].hasDaisy()) {
 				temp.add(8);
 			}
-			// 种植reproduce
-			if(temp.size()>0) {
+			// Randomly choosing an empty patch and reproduce
+			if (temp.size() > 0) {
 				int selected = random.nextInt(temp.size());
 				switch (temp.get(selected)) {
 				case 1:
@@ -614,42 +622,44 @@ public class Main {
 		}
 	}
 
-	// 检查存活，并繁殖
+	/**
+	 * Daisy procedure: let the daisy age one and check if the daisy's age beyond its life span,
+	 * if it's not, according to the reproductive law to reproduce the daisy.
+	 * @param daisyWorld
+	 */
 	private static void checkSurvivability(Patch[][] daisyWorld) {
 		double seed_threshold;
 		for (int i = 0; i < Params.PATCH_SIZE; i++) {
 			for (int j = 0; j < Params.PATCH_SIZE; j++) {
-				// 判断本地是否有daisy
 				Patch here = daisyWorld[i][j];
 				double temperature = here.getTemperature();
+				// Check if the current patch has daisy
 				if (here.hasDaisy()) {
-					// 增长一岁
+					// daisy age one
 					here.getDaisy_here().addAge();
-					// 开始判断
-					if(here.getDaisy_here().getColor() == DaisyColor.GRAY) {
+					// Extension: daisy in gray color has longer life span
+					if (here.getDaisy_here().getColor() == DaisyColor.GRAY) {
 						if (here.getDaisy_here().getAge() <= Params.GRAY_AGE) {
-							// 在周边找一个种植daisy
+							// quadratic function: the possibility of reproducing
 							seed_threshold = ((0.1457 * temperature) - (0.0032 * (temperature * temperature)) - 0.6443);
 							if (Math.random() < seed_threshold) {
-								// 选择空地
-								// 种植种子
+								// Call the reproduce function
 								reproduce(daisyWorld, i, j);
 							}
 						} else {
-							// daisy dies, temperature remain unchanged死亡，将该地设置为空地
+							// daisy dies, temperature remain unchanged
 							daisyWorld[i][j].setDaisy_here(null);
 						}
 					} else {
+						// Daisy in black or white color has shorter life span
 						if (here.getDaisy_here().getAge() <= Params.MAX_AGE) {
-							// 在周边找一个种植daisy
 							seed_threshold = ((0.1457 * temperature) - (0.0032 * (temperature * temperature)) - 0.6443);
 							if (Math.random() < seed_threshold) {
-								// 选择空地
-								// 种植种子
+								// Call the reproduce function
 								reproduce(daisyWorld, i, j);
 							}
 						} else {
-							// daisy dies, temperature remain unchanged死亡，将该地设置为空地
+							// daisy dies, temperature remain unchanged
 							daisyWorld[i][j].setDaisy_here(null);
 						}
 					}

@@ -1,6 +1,6 @@
-package entity;
+//package entity;
 
-import settings.*;
+//import settings.*;
 
 public class Daisy {
 	

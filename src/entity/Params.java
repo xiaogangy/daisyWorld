@@ -1,4 +1,4 @@
-package settings;
+//package entity;
 
 public class Params {
 	
