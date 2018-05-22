@@ -35,8 +35,8 @@ public class Main {
 			File csv = new File("Data.csv"); // create a data.csv file to store the data
 			BufferedWriter bw = new BufferedWriter(new FileWriter(csv));
 			// Set up the table header
-			bw.write("Tick" + "," + "GlobalTemperature" + "," + "BlackPopulation" + "," + "WhitePopulation" + ","
-					+ "GrayPopulation");
+			bw.write("Tick" + "," + "GlobalTemperature" + "," + "BlackPopulation" + "," 
+					+ "WhitePopulation" + "," + "GrayPopulation");
 			bw.newLine();
 			// Declare the daisyWorld which is a two-dimensional array
 			Patch[][] daisyWorld = new Patch[Params.PATCH_SIZE][Params.PATCH_SIZE];
@@ -68,8 +68,9 @@ public class Main {
 			global_temperature = average_Temperature(daisyWorld);
 
 			// Write the first set of data into the data.csv file
-			bw.write(0 + "," + global_temperature + "," + daisyAmount(daisyWorld, DaisyColor.BLACK) + ","
-					+ daisyAmount(daisyWorld, DaisyColor.WHITE) + "," + daisyAmount(daisyWorld, DaisyColor.GRAY));
+			bw.write(0 + "," + global_temperature + "," + daisyAmount(daisyWorld, DaisyColor.BLACK)
+					+ "," + daisyAmount(daisyWorld, DaisyColor.WHITE) 
+					+ "," + daisyAmount(daisyWorld, DaisyColor.GRAY));
 			bw.newLine();
 
 			// Update rules, in alignment with the go procedure in the NetLogo code
@@ -90,8 +91,8 @@ public class Main {
 				whiteAmount = daisyAmount(daisyWorld, DaisyColor.WHITE);
 				grayAmount = daisyAmount(daisyWorld, DaisyColor.GRAY);
 				// Write the new data in that tick into the data file
-				bw.write(
-						tick + 1 + "," + global_temperature + "," + blackAmount + "," + whiteAmount + "," + grayAmount);
+				bw.write(tick + 1 + "," + global_temperature + "," + blackAmount + "," 
+						+ whiteAmount + "," + grayAmount);
 				bw.newLine();
 			}
 			System.out.println("Writing finishs.");
@@ -143,7 +144,8 @@ public class Main {
 				int y = random.nextInt(Params.PATCH_SIZE);
 				if (!daisyWorld[x][y].hasDaisy()) {
 					daisyWorld[x][y].setDaisy_here(
-							new Daisy(color, random.nextInt(Params.MAX_AGE + 1), Params.ALBEDO_OF_BLACK));
+							new Daisy(color, random.nextInt(Params.MAX_AGE + 1), 
+									Params.ALBEDO_OF_BLACK));
 					i++;
 				} else {
 					continue;
@@ -155,7 +157,8 @@ public class Main {
 				int y = random.nextInt(Params.PATCH_SIZE);
 				if (!daisyWorld[x][y].hasDaisy()) {
 					daisyWorld[x][y].setDaisy_here(
-							new Daisy(color, random.nextInt(Params.MAX_AGE + 1), Params.ALBEDO_OF_WHITES));
+							new Daisy(color, random.nextInt(Params.MAX_AGE + 1), 
+									Params.ALBEDO_OF_WHITES));
 					i++;
 				} else {
 					continue;
@@ -166,8 +169,9 @@ public class Main {
 				int x = random.nextInt(Params.PATCH_SIZE);
 				int y = random.nextInt(Params.PATCH_SIZE);
 				if (!daisyWorld[x][y].hasDaisy()) {
-					daisyWorld[x][y]
-							.setDaisy_here(new Daisy(color, random.nextInt(Params.MAX_AGE + 1), Params.ALBEDO_OF_GRAY));
+					daisyWorld[x][y].setDaisy_here(
+							new Daisy(color, random.nextInt(Params.MAX_AGE + 1),
+									Params.ALBEDO_OF_GRAY));
 					i++;
 				} else {
 					continue;
@@ -227,62 +231,70 @@ public class Main {
 				}
 				// top right corner
 				if (i == 0 && j == Params.PATCH_SIZE - 1) {
-					absorbed_temp = diffusion[i][j - 1] + diffusion[i + 1][j - 1] + diffusion[i + 1][j];
+					absorbed_temp = diffusion[i][j - 1] + diffusion[i + 1][j - 1] 
+							+ diffusion[i + 1][j];
 					final_temp = absorbed_temp + current_temp * (13 / 16);
 					daisyWorld[i][j].setTemperature(final_temp);
 					continue;
 				}
 				// bottom left corner
 				if (i == Params.PATCH_SIZE - 1 && j == 0) {
-					absorbed_temp = diffusion[i - 1][j] + diffusion[i - 1][j + 1] + diffusion[i][j + 1];
+					absorbed_temp = diffusion[i - 1][j] + diffusion[i - 1][j + 1] 
+							+ diffusion[i][j + 1];
 					final_temp = absorbed_temp + current_temp * (13 / 16);
 					daisyWorld[i][j].setTemperature(final_temp);
 					continue;
 				}
 				// bottom right corner
 				if (i == Params.PATCH_SIZE - 1 && j == Params.PATCH_SIZE - 1) {
-					absorbed_temp = diffusion[i][j - 1] + diffusion[i - 1][j] + diffusion[i - 1][j - 1];
+					absorbed_temp = diffusion[i][j - 1] + diffusion[i - 1][j] 
+							+ diffusion[i - 1][j - 1];
 					final_temp = absorbed_temp + current_temp * (13 / 16);
 					daisyWorld[i][j].setTemperature(final_temp);
 					continue;
 				}
 				// top line
 				if (i == 0 && 0 < j && j < Params.PATCH_SIZE - 1) {
-					absorbed_temp = diffusion[i][j - 1] + diffusion[i][j + 1] + diffusion[i + 1][j - 1]
-							+ diffusion[i + 1][j] + diffusion[i + 1][j + 1];
+					absorbed_temp = diffusion[i][j - 1] + diffusion[i][j + 1] 
+							+ diffusion[i + 1][j - 1] + diffusion[i + 1][j] 
+							+ diffusion[i + 1][j + 1];
 					final_temp = absorbed_temp + current_temp * (11 / 16);
 					daisyWorld[i][j].setTemperature(final_temp);
 					continue;
 				}
 				// bottom line
 				if (i == Params.PATCH_SIZE - 1 && 0 < j && j < Params.PATCH_SIZE - 1) {
-					absorbed_temp = diffusion[i][j - 1] + diffusion[i][j + 1] + diffusion[i - 1][j - 1]
-							+ diffusion[i - 1][j] + diffusion[i - 1][j + 1];
+					absorbed_temp = diffusion[i][j - 1] + diffusion[i][j + 1]
+							+ diffusion[i - 1][j - 1] + diffusion[i - 1][j] 
+							+ diffusion[i - 1][j + 1];
 					final_temp = absorbed_temp + current_temp * (11 / 16);
 					daisyWorld[i][j].setTemperature(final_temp);
 					continue;
 				}
 				// left column
 				if (j == 0 && 0 < i && i < Params.PATCH_SIZE - 1) {
-					absorbed_temp = diffusion[i - 1][j] + diffusion[i + 1][j] + diffusion[i - 1][j + 1]
-							+ diffusion[i][j + 1] + diffusion[i + 1][j + 1];
+					absorbed_temp = diffusion[i - 1][j] + diffusion[i + 1][j]
+							+ diffusion[i - 1][j + 1] + diffusion[i][j + 1]
+							+ diffusion[i + 1][j + 1];
 					final_temp = absorbed_temp + current_temp * (11 / 16);
 					daisyWorld[i][j].setTemperature(final_temp);
 					continue;
 				}
 				// right column
 				if (j == Params.PATCH_SIZE - 1 && 0 < i && i < Params.PATCH_SIZE - 1) {
-					absorbed_temp = diffusion[i][j - 1] + diffusion[i - 1][j - 1] + diffusion[i + 1][j - 1]
-							+ diffusion[i - 1][j] + diffusion[i + 1][j];
+					absorbed_temp = diffusion[i][j - 1] + diffusion[i - 1][j - 1]
+							+ diffusion[i + 1][j - 1] + diffusion[i - 1][j]
+							+ diffusion[i + 1][j];
 					final_temp = absorbed_temp + current_temp * (11 / 16);
 					daisyWorld[i][j].setTemperature(final_temp);
 					continue;
 				}
 				// Medium points
 				if (0 < i && i < Params.PATCH_SIZE - 1 && 0 < j && j < Params.PATCH_SIZE - 1) {
-					absorbed_temp = diffusion[i - 1][j - 1] + diffusion[i - 1][j] + diffusion[i - 1][j + 1]
-							+ diffusion[i][j - 1] + diffusion[i][j + 1] + diffusion[i + 1][j - 1] + diffusion[i + 1][j]
-							+ diffusion[i + 1][j + 1];
+					absorbed_temp = diffusion[i - 1][j - 1] + diffusion[i - 1][j] 
+							+ diffusion[i - 1][j + 1] + diffusion[i][j - 1] 
+							+ diffusion[i][j + 1] + diffusion[i + 1][j - 1] 
+							+ diffusion[i + 1][j] + diffusion[i + 1][j + 1];
 					final_temp = absorbed_temp + current_temp / 2;
 					daisyWorld[i][j].setTemperature(final_temp);
 					continue;
@@ -661,7 +673,8 @@ public class Main {
 					if (here.getDaisy_here().getColor() == DaisyColor.GRAY) {
 						if (here.getDaisy_here().getAge() <= Params.GRAY_AGE) {
 							// quadratic function: the possibility of reproducing
-							seed_threshold = ((0.1457 * temperature) - (0.0032 * (temperature * temperature)) - 0.6443);
+							seed_threshold = ((0.1457 * temperature) - 
+									(0.0032 * (temperature * temperature)) - 0.6443);
 							if (Math.random() < seed_threshold) {
 								// Call the reproduce function
 								reproduce(daisyWorld, i, j);
@@ -673,7 +686,8 @@ public class Main {
 					} else {
 						// Daisy in black or white color has shorter life span
 						if (here.getDaisy_here().getAge() <= Params.MAX_AGE) {
-							seed_threshold = ((0.1457 * temperature) - (0.0032 * (temperature * temperature)) - 0.6443);
+							seed_threshold = ((0.1457 * temperature) - 
+									(0.0032 * (temperature * temperature)) - 0.6443);
 							if (Math.random() < seed_threshold) {
 								// Call the reproduce function
 								reproduce(daisyWorld, i, j);
