@@ -1,4 +1,5 @@
-//package entity;
+// Xiaogang Yang: 828331; Peiwen Du: 800366
+package entity;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -8,10 +9,22 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Random;
 
+/**
+ * This model simulates the daisyWorld, which is a self-regulating system. The
+ * daisy and temperature are affected by each other and finally keeps the
+ * temperature stable in a certain level.
+ * 
+ * @author Xiaogang Yang. Peiwen Du
+ *
+ */
 public class Main {
 
 	/**
-	 * main function
+	 * main function models two procedures in the NetLogo which are "setup" and
+	 * "go". Firstly, we initialize the world as a two-dimensional matrix and
+	 * randomly sow the daisy seeds. Then for each tick, it updates the temperature
+	 * of each patch and reproduce the daisy. Also, we save the global temperature,
+	 * the number of black daisy, white and gray daisy into the data.csv to analyze.
 	 * 
 	 * @param args
 	 */
@@ -22,7 +35,8 @@ public class Main {
 			File csv = new File("Data.csv"); // create a data.csv file to store the data
 			BufferedWriter bw = new BufferedWriter(new FileWriter(csv));
 			// Set up the table header
-			bw.write("GlobalTemperature" + "," + "BlackPopulation" + "," + "WhitePopulation" + "," + "GrayPopulation");
+			bw.write("Tick" + "," + "GlobalTemperature" + "," + "BlackPopulation" + "," + "WhitePopulation" + ","
+					+ "GrayPopulation");
 			bw.newLine();
 			// Declare the daisyWorld which is a two-dimensional array
 			Patch[][] daisyWorld = new Patch[Params.PATCH_SIZE][Params.PATCH_SIZE];
@@ -80,7 +94,7 @@ public class Main {
 						tick + 1 + "," + global_temperature + "," + blackAmount + "," + whiteAmount + "," + grayAmount);
 				bw.newLine();
 			}
-			System.out.println("更新结束");
+			System.out.println("Writing finishs.");
 			bw.close();
 		} catch (FileNotFoundException e) {
 			// Capture the exceptions during creating the files
@@ -152,8 +166,8 @@ public class Main {
 				int x = random.nextInt(Params.PATCH_SIZE);
 				int y = random.nextInt(Params.PATCH_SIZE);
 				if (!daisyWorld[x][y].hasDaisy()) {
-					daisyWorld[x][y].setDaisy_here(
-							new Daisy(color, random.nextInt(Params.MAX_AGE + 1), Params.ALBEDO_OF_GRAY));
+					daisyWorld[x][y]
+							.setDaisy_here(new Daisy(color, random.nextInt(Params.MAX_AGE + 1), Params.ALBEDO_OF_GRAY));
 					i++;
 				} else {
 					continue;
@@ -164,6 +178,7 @@ public class Main {
 
 	/**
 	 * Calculate the global temperature
+	 * 
 	 * @param daisyWorld
 	 * @return global_temperature
 	 */
@@ -182,6 +197,7 @@ public class Main {
 
 	/**
 	 * Patch procedure: Diffuse 50% of local temperature to its neighbours
+	 * 
 	 * @param daisyWorld
 	 */
 	private static void diffusion(Patch[][] daisyWorld) {
@@ -230,7 +246,7 @@ public class Main {
 					daisyWorld[i][j].setTemperature(final_temp);
 					continue;
 				}
-				// top line 
+				// top line
 				if (i == 0 && 0 < j && j < Params.PATCH_SIZE - 1) {
 					absorbed_temp = diffusion[i][j - 1] + diffusion[i][j + 1] + diffusion[i + 1][j - 1]
 							+ diffusion[i + 1][j] + diffusion[i + 1][j + 1];
@@ -276,9 +292,11 @@ public class Main {
 	}
 
 	/**
-	 * Daisy procedure: according to the quadratic function, daisy has different possibility to 
-	 * reproduce in one of the empty patch around it. When randomly picking up the empty patch,
-	 * use specific integer to represent the neighbours' position.
+	 * Daisy procedure: according to the quadratic function, daisy has different
+	 * possibility to reproduce in one of the empty patch around it. When randomly
+	 * picking up the empty patch, use specific integer to represent the neighbours'
+	 * position.
+	 * 
 	 * @param daisyWorld
 	 * @param i
 	 * @param j
@@ -298,7 +316,7 @@ public class Main {
 		} else if (color == DaisyColor.GRAY) {
 			albedo = Params.ALBEDO_OF_GRAY;
 		}
-		
+
 		// top left corner
 		if (i == 0 && j == 0) {
 			if (!daisyWorld[i][j + 1].hasDaisy()) {
@@ -623,8 +641,10 @@ public class Main {
 	}
 
 	/**
-	 * Daisy procedure: let the daisy age one and check if the daisy's age beyond its life span,
-	 * if it's not, according to the reproductive law to reproduce the daisy.
+	 * Daisy procedure: let the daisy age one and check if the daisy's age beyond
+	 * its life span, if it's not, according to the reproductive law to reproduce
+	 * the daisy.
+	 * 
 	 * @param daisyWorld
 	 */
 	private static void checkSurvivability(Patch[][] daisyWorld) {

@@ -1,7 +1,13 @@
-//package entity;
+// Xiaogang Yang: 828331; Peiwen Du: 800366
+package entity;
 
-//import settings.*;
-
+/**
+ * Simulates the daisy in alignment with NetLogo model. Each daisy has different
+ * color, daisy with gray color has longer life span and its albedo is situated 
+ * between the white daisy and black daisy.
+ * @author Xiaogang Yang. Peiwen Du
+ *
+ */
 public class Daisy {
 	
 	private DaisyColor color;
@@ -9,15 +15,9 @@ public class Daisy {
 	private double albedo;
 	
 	public Daisy(DaisyColor color, int age, double albedo) {
-		// TODO Auto-generated constructor stub
 		this.albedo = albedo;
 		this.age = age;
 		this.color = color;
-	}
-	
-	public boolean check_live(int max_age){
-		age++;
-		return (age<=max_age);
 	}
 
 	public DaisyColor getColor() {
@@ -31,7 +31,10 @@ public class Daisy {
 	public int getAge() {
 		return age;
 	}
-
+	
+	/**
+	 * The daisy ages one
+	 */
 	public void addAge() {
 		age++;
 	}
