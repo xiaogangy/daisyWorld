@@ -15,32 +15,68 @@ public class Patch {
 	// A daisy could grow on the patch
 	private Daisy daisy_here;
 
+	/**
+	 * Constructor that set the daisy as null by default
+	 * 
+	 * @param temperature
+	 */
 	Patch(double temperature) {
 		this.temperature = temperature;
 		this.daisy_here = null;
 	}
 
+	/**
+	 * Designate the daisy on the patch
+	 * 
+	 * @param temperature
+	 * @param daisy
+	 */
 	public Patch(double temperature, Daisy daisy) {
 		this.temperature = temperature;
 		this.daisy_here = daisy;
 	}
 
+	/**
+	 * Getter: get the temperature of local patch
+	 * 
+	 * @return temperature
+	 */
 	public double getTemperature() {
 		return temperature;
 	}
 
+	/**
+	 * Setter: set the temperature of local patch
+	 * 
+	 * @param temperature
+	 */
 	public void setTemperature(double temperature) {
 		this.temperature = temperature;
 	}
 
+	/**
+	 * Getter: get the daisy of local patch
+	 * 
+	 * @return Daisy
+	 */
 	public Daisy getDaisy_here() {
 		return daisy_here;
 	}
 
+	/**
+	 * Setter: designate daisy on the local patch
+	 * 
+	 * @param daisy_here
+	 */
 	public void setDaisy_here(Daisy daisy_here) {
 		this.daisy_here = daisy_here;
 	}
 
+	/**
+	 * Check if local patch has a daisy
+	 * 
+	 * @return
+	 */
 	public boolean hasDaisy() {
 		return !(daisy_here == null);
 	}

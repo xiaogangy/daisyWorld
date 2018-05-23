@@ -20,7 +20,7 @@ import java.util.Random;
 public class Main {
 
 	/**
-	 * main function models two procedures in the NetLogo which are "setup" and
+	 * Main function models two procedures in the NetLogo which are "setup" and
 	 * "go". Firstly, we initialize the world as a two-dimensional matrix and
 	 * randomly sow the daisy seeds. Then for each tick, it updates the temperature
 	 * of each patch and reproduce the daisy. Also, we save the global temperature,
@@ -75,7 +75,7 @@ public class Main {
 
 			// Update rules, in alignment with the go procedure in the NetLogo code
 			for (int tick = 0; tick < 100; tick++) {
-				// Params.setSOLAR_LUMINOSITY(tick);
+				Params.setSOLAR_LUMINOSITY(tick);
 				for (int i = 0; i < Params.PATCH_SIZE; i++) {
 					for (int j = 0; j < Params.PATCH_SIZE; j++) {
 						daisyWorld[i][j].calc_temperature();
@@ -669,33 +669,21 @@ public class Main {
 				if (here.hasDaisy()) {
 					// daisy age one
 					here.getDaisy_here().addAge();
-					// Extension: daisy in gray color has longer life span
-					if (here.getDaisy_here().getColor() == DaisyColor.GRAY) {
-						if (here.getDaisy_here().getAge() <= Params.GRAY_AGE) {
-							// quadratic function: the possibility of reproducing
-							seed_threshold = ((0.1457 * temperature) - 
-									(0.0032 * (temperature * temperature)) - 0.6443);
-							if (Math.random() < seed_threshold) {
-								// Call the reproduce function
-								reproduce(daisyWorld, i, j);
-							}
-						} else {
-							// daisy dies, temperature remain unchanged
-							daisyWorld[i][j].setDaisy_here(null);
+					// Check if the daisy reaches its life span
+					if (here.getDaisy_here().getAge() <= Params.MAX_AGE) {
+						seed_threshold = ((0.1457 * temperature) - 
+								(0.0032 * (temperature * temperature)) - 0.6443);
+						// Output the seed_threshold to predicate the possibility of the reproduce
+						// if (here.getDaisy_here().getColor() == DaisyColor.BLACK) {
+						// System.out.println(temperature);
+						// }
+						if (Math.random() < seed_threshold) {
+							// Call the reproduce function
+							reproduce(daisyWorld, i, j);
 						}
 					} else {
-						// Daisy in black or white color has shorter life span
-						if (here.getDaisy_here().getAge() <= Params.MAX_AGE) {
-							seed_threshold = ((0.1457 * temperature) - 
-									(0.0032 * (temperature * temperature)) - 0.6443);
-							if (Math.random() < seed_threshold) {
-								// Call the reproduce function
-								reproduce(daisyWorld, i, j);
-							}
-						} else {
-							// daisy dies, temperature remain unchanged
-							daisyWorld[i][j].setDaisy_here(null);
-						}
+						// daisy dies, temperature remain unchanged
+						daisyWorld[i][j].setDaisy_here(null);
 					}
 				}
 			}
